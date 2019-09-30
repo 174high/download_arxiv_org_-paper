@@ -9,6 +9,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome import webdriver as chrome_webdriver
 from selenium.webdriver import Chrome
 
+CLICK_A_NUM = '''
+document.querySelectorAll("a")[%s].click();
+'''
+
 class RMPDownload:
     def __init__(self,path):
         self.path_root=path
@@ -17,15 +21,12 @@ class RMPDownload:
         print("download_path=",download_path)
         self.driver = self.driver_builder.get_driver(download_path, headless=True)
 
-    def download(self,equipment):
+    def download(self,addr,name,num1,num2):
 
-        self.driver.get("https://arxiv.org/search/?query=Autonomous+Vehicle&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start="+equipment) 
+        self.driver.get(addr) 
 
         try :
-            js = ''' document.querySelectorAll("a")[16].click();
-
-                
-            '''
+            js=CLICK_A_NUM % num1
             self.driver.execute_script(js)
         except: 
             print("exception 1 ")
@@ -33,15 +34,12 @@ class RMPDownload:
         sleep(10)  
 
         try :
-            js = ''' document.querySelectorAll("a")[1].click();
-
-                
-            '''
+            js=CLICK_A_NUM % num2
             self.driver.execute_script(js)
         except:
             print("exception 2 ")
 
-        self.wait_until_file_exists("1909.12288.pdf", 20)
+        self.wait_until_file_exists(name, 20)
 
         self.driver.close()
 
@@ -61,23 +59,24 @@ class RMPDownload:
             sleep(.5)  # make sure file completes downloading
             waits += .5
 
-    def download_by_quip(self,equipment):
+    def download_by_quip(self,addr,name,num1,num2):
         print("testing download")
 
         fileList=os.listdir(self.path_root)
         for file in fileList:
             print("file name=",file)
-            if file.find(equipment) >=0 :
+            if file.find(name) >=0 :
                 os.remove(self.path_root+file)
 
-        self.download(equipment)
+        self.download(addr,name,num1,num2)
 
 if __name__ == "__main__":
  
 
     t=RMPDownload("C:\\Users\\shijonn\\Desktop\\cop\\automation"+"\\")
-    t.download_by_quip("0")
+    t.download_by_quip("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0","1909.12288.pdf",16,2)
 
+#    t.download("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0","1909.12288.pdf",16,2)
 
 
 
