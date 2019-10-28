@@ -3,6 +3,11 @@ from bs4 import BeautifulSoup
 import requests
 from awesome import RMPDownload
 
+from openpyxl import load_workbook
+from openpyxl import Workbook
+import os,sys
+import shutil 
+
 FILL_VALUE_IN_FORM = 'document.getElementById("%s").setAttribute("value", "%s");'
 CLICK_BY_ID = 'document.getElementById("%s").click()'
 #CLICK_ONE_BY_CLASS = 'document.getElementsByClassName("%s").click()'
@@ -70,77 +75,63 @@ class crawler():
                 pdf_name=str(link)[a+4:a+14]
                 print(pdf_name)
                 number_pdf=number_pdf+1
+                self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",pdf_name,"test","test","test","test","test","test")
             
-                cmd=CLICK_A_NUM % control_1
 
-                print(cmd)
-                self.tab.Runtime.evaluate(expression=cmd)
+    def excel(self,path,name,output,name2,serial_num,titile,abstract,addr,existence,date,position):
+    
+        print(path)
+        print(output)
 
-                # wait for loading
-                self.tab.wait(20)
+        fileList=os.listdir(output)
 
-                html = self.tab.Runtime.evaluate(expression="document.documentElement.outerHTML")
+        if(len(fileList)==0):
+            shutil.copy(path+name,output)   
 
-                #print(html)
+        fileList=os.listdir(output)
 
-                soup = BeautifulSoup(((html['result'])['value']),"html.parser")
+        wkbk = Workbook()
 
-                control_2=0
+        for file in fileList:
+            wb = load_workbook(output+file)
+            print(wb.sheetnames[0])
 
-                for link in soup.find_all("a"):
-                    print(link)
-                    if str(link).find("here") > 0 :
-                        print(link)
-                        print(type(str(link)))
-                        self.t.download_by_quip("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0",pdf_name+".pdf",control_1,control_2)
+            for sheet in wb:
+                print("max row=",sheet.max_row,"max column=",sheet.max_column)
+  
+                file_num=2
+                exist=False
+                while(file_num<=sheet.max_row):
+                    if(sheet.cell(row=file_num, column=1)==serial_num):
+                        exist=True
                         break
-                    control_2=control_2+1
+                    file_num=file_num+1 
 
-            control_1=control_1+1
+                next_row=sheet.max_row+1
 
-        print("the amount of pdf =",number_pdf)
-'''
-        number_title=0
+                if(exist==False):
+                    sheet.cell(row=next_row, column=1,value=serial_num)
+                    sheet.cell(row=next_row, column=2,value=titile)
+                    sheet.cell(row=next_row, column=3,value=abstract)
+                    sheet.cell(row=next_row, column=4,value=addr)
+                    sheet.cell(row=next_row, column=5,value=existence)
+                    sheet.cell(row=next_row, column=6,value=date)
+                    sheet.cell(row=next_row, column=7,value=position)
 
-        for link in soup.find_all("p"):
-        #    print(link)
-        #    print(type(str(link)))
-            if str(link).find("title is-5 mathjax") > 0 :
-        #        print(link)
-        #        print(type(str(link)))
-                print(link.text)
-                number_title=number_title+1
-
-        print("the amount of title=",number_title)
-
-        number_abstract=0
-
-        for link in soup.find_all("p"):
-        #    print(link)
-        #    print(type(str(link)))
-            if str(link).find("abstract-full has-text-grey-dark mathjax") > 0 :
-        #        print(link)
-        #        print(link.text)
-                a=link.text.find("More")+4                
-                b=link.text.find("Less")-2
-                c=link.text[a:b]
-                print(c)       
-
-                number_abstract=number_abstract+1
-
-        print("the amount of abstract=",number_abstract)
-
-        if number_pdf==number_title==number_abstract:
-            print("everything goes well")
-'''
-
-
+                wb.save(output+"tmp.xlsx")
+                                
+        shutil.copy(output+"tmp.xlsx",output+name2)             
+        os.remove(output+"tmp.xlsx")
+	
+        try:
+            os.remove(output+name) 
+        except FileNotFoundError: 
+            print("ignore it ")
 
 if __name__ == "__main__" :
-    c=crawler()
+    c=crawler() 
     c.call_web()
-
-
+#    c.excel("./files/","./files/","test","test","test","test","test","test","test")
 
 
 
