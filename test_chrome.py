@@ -71,12 +71,15 @@ class crawler():
             if str(link).find("pdf") > 0 :
                 print(link)
                 #print(type(str(link)))
+                a=str(link).find("href=")
+                b=str(link).find("</a>",a)
+                addr=str(link)[a+6:b-5]
                 a=str(link).find("pdf")
                 pdf_name=str(link)[a+4:a+14]
                 print(pdf_name)
                 number_pdf=number_pdf+1
-                self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",pdf_name,"test","test","test","test","test","test")
-            
+                self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",pdf_name,"test","test",addr,"test","test","test")
+                
 
     def excel(self,path,name,output,name2,serial_num,titile,abstract,addr,existence,date,position):
     
@@ -102,7 +105,7 @@ class crawler():
                 file_num=2
                 exist=False
                 while(file_num<=sheet.max_row):
-                    if(sheet.cell(row=file_num, column=1)==serial_num):
+                    if(sheet.cell(row=file_num, column=1).value==serial_num):
                         exist=True
                         break
                     file_num=file_num+1 
