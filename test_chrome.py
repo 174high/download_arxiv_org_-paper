@@ -65,9 +65,22 @@ class crawler():
         number_pdf=0
         control_1=0
 
+        for link in soup.find_all("p"):
+#            print(link)
+#            print(type(str(link)))   
+            if str(link).find("title is-5 mathjax") > 0 :
+                print(link) 
+                a=str(link).find("<p class="title is-5 mathjax">")
+                b=str(link).find("</p>")
+                title=str(link)[a+30:b-5]
+		
+
+#                self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",None,title,None,None,None,None,None)
+
+
         for link in soup.find_all("a"):
-        #    print(link)
-        #    print(type(str(link)))   
+#            print(link)
+#           print(type(str(link)))   
             if str(link).find("pdf") > 0 :
                 print(link)
                 #print(type(str(link)))
@@ -78,8 +91,9 @@ class crawler():
                 pdf_name=str(link)[a+4:a+14]
                 print(pdf_name)
                 number_pdf=number_pdf+1
-                self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",pdf_name,"test","test",addr,"test","test","test")
-                
+                self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",pdf_name,None,None,addr,None,None,None)
+
+               
 
     def excel(self,path,name,output,name2,serial_num,titile,abstract,addr,existence,date,position):
     
@@ -113,12 +127,19 @@ class crawler():
                 next_row=sheet.max_row+1
 
                 if(exist==False):
-                    sheet.cell(row=next_row, column=1,value=serial_num)
+                    if(serial_num!=None):
+                        sheet.cell(row=next_row, column=1,value=serial_num)
+                    if(titile!=None):
                     sheet.cell(row=next_row, column=2,value=titile)
+                    if(abstract!=None):
                     sheet.cell(row=next_row, column=3,value=abstract)
+                    if(addr!=None):
                     sheet.cell(row=next_row, column=4,value=addr)
+                    if(existence!=None):
                     sheet.cell(row=next_row, column=5,value=existence)
+                    if(date!=None):
                     sheet.cell(row=next_row, column=6,value=date)
+                    if(position!=None):
                     sheet.cell(row=next_row, column=7,value=position)
 
                 wb.save(output+"tmp.xlsx")
@@ -130,6 +151,7 @@ class crawler():
             os.remove(output+name) 
         except FileNotFoundError: 
             print("ignore it ")
+
 
 if __name__ == "__main__" :
     c=crawler() 
