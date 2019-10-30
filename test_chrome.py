@@ -44,19 +44,18 @@ class crawler():
         self.tab.start()
         # call method
         self.tab.Network.enable()
-        
-
-
+       
     # register callback if you want
     def request_will_be_sent(**kwargs):
         print("loading: %s" % kwargs.get('request').get('url'))
 
-    def call_web(self,keyword,start): 
+    def call_web(self,keyword,start,size): 
         list = []
         list2= []
+        list3 = []
 
         # call method with timeout
-        self.tab.call_method('Page.navigate',url="https://arxiv.org/search/?query="+keyword+"&searchtype=all&source=header&order=-announced_date_first&size=100&abstracts=show&start="+start, _timeout=20)
+        self.tab.call_method('Page.navigate',url="https://arxiv.org/search/?query="+keyword+"&searchtype=all&source=header&order=-announced_date_first&size="+size+"&abstracts=show&start="+start, _timeout=20)
 
         # wait for loading
         self.tab.wait(2)
@@ -129,19 +128,40 @@ class crawler():
                 print(control_1)
                 print(control_3)
                 t=RMPDownload("C:\\Users\\shijonn\\Desktop\\cop\\automation"+"\\")
-                t.download_by_quip("https://arxiv.org/search/?query="+keyword+"&searchtype=all&source=header&order=-announced_date_first&size=100&abstracts=show&start="+start,pdf_name+".pdf",control_1,control_3)
+                t.download_by_quip("https://arxiv.org/search/?query="+keyword+"&searchtype=all&source=header&order=-announced_date_first&size="+size+"&abstracts=show&start="+start,pdf_name+".pdf",control_1,control_3)
+
+
+                fileList=os.listdir("../")
+                for file in fileList:
+                    print("file name=",file)
+                    if os.path.isdir("../"+file):
+                        if file=="automation":
+                            list3.append(None)
+                            continue    
+                        fileList2=os.listdir("../"+file)
+                        for file2 in fileList2:        
+                            print("file name=",file2)                                 
+                            if file2==(pdf_name+".pdf"):
+                                list3.append(file)
+                                print(file) 
+                                print(type(file)) 
+                                print(len(list3))
+                                print("there already is the file")
+                                os.remove("./"+pdf_name+".pdf")
 
             control_1=control_1+1
 
-        if(not(len(list2)==len(list))):
+        if(not((len(list2)==len(list))&&(len(list3)==len(list)))):
             print("something bad happened ")
             exit()                      
 
         for i in list2:
             i["title"]=list.pop(0)  
-            print(i['serial_num'],i['addr'],i["title"])   
-            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,time.asctime( time.localtime(time.time()) ),None)
+            i["position"]=list3.pop(0)
+            print(i['serial_num'],i['addr'],i["title"],i["position"])   
+            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,time.asctime( time.localtime(time.time()) ),i["position"])
                 
+        
 
     def excel(self,path,name,output,name2,serial_num,titile,addr,existence,date,position):
     
@@ -169,6 +189,18 @@ class crawler():
                 while(file_num<=sheet.max_row):
                     if(sheet.cell(row=file_num, column=1).value==serial_num):
                         print("is true!")
+                        if(serial_num!=None):
+                            sheet.cell(row=file_num, column=1,value=serial_num)
+                        if(titile!=None):
+                            sheet.cell(row=file_num, column=2,value=titile)
+                        if(addr!=None):
+                            sheet.cell(row=file_num, column=3,value=addr)
+                        if(existence!=None):
+                            sheet.cell(row=file_num, column=4,value=existence)
+                        if(date!=None):
+                            sheet.cell(row=file_num, column=5,value=date)
+                        if(position!=None):
+                            sheet.cell(row=file_num, column=6,value=position)
                         exist=True
                         break
                     file_num=file_num+1 
@@ -202,7 +234,7 @@ class crawler():
 
 if __name__ == "__main__" :
     c=crawler() 
-    c.call_web("Autonomous+Vehicle","0")
+    c.call_web("Autonomous+Vehicle","0","50")
 #    c.call_web("Autonomous+Vehicle","100")
 #    c.excel("./files/","./files/","test","test","test","test","test","test","test")
 
