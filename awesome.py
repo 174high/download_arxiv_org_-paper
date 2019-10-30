@@ -74,9 +74,17 @@ if __name__ == "__main__":
  
 
     t=RMPDownload("C:\\Users\\shijonn\\Desktop\\cop\\automation"+"\\")
-    t.download_by_quip("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0","1909.12288.pdf",16,2)
 
-#    t.download("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0","1909.12288.pdf",16,2)
+
+    t.download_by_quip("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0","1909.12288.pdf",16,1)
+
+    t1=RMPDownload("C:\\Users\\shijonn\\Desktop\\cop\\automation"+"\\")
+
+    t1.download_by_quip("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0","1909.12288.pdf",31,1)
+
+
+
+#    t.download("https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0","1909.12288.pdf",31,1)
 
 
 

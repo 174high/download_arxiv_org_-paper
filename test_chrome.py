@@ -7,6 +7,8 @@ from openpyxl import load_workbook
 from openpyxl import Workbook
 import os,sys
 import shutil 
+import time
+
 
 FILL_VALUE_IN_FORM = 'document.getElementById("%s").setAttribute("value", "%s");'
 CLICK_BY_ID = 'document.getElementById("%s").click()'
@@ -42,19 +44,19 @@ class crawler():
         self.tab.start()
         # call method
         self.tab.Network.enable()
-        self.t=RMPDownload("C:\\Users\\shijonn\\Desktop\\cop\\automation"+"\\")
+        
 
 
     # register callback if you want
     def request_will_be_sent(**kwargs):
         print("loading: %s" % kwargs.get('request').get('url'))
 
-    def call_web(self): 
+    def call_web(self,keyword,start): 
         list = []
         list2= []
 
         # call method with timeout
-        self.tab.call_method('Page.navigate',url="https://arxiv.org/search/?query="+"Autonomous+Vehicle"+"&searchtype=all&source=header&order=-announced_date_first&size=50&abstracts=show&start=0", _timeout=5)
+        self.tab.call_method('Page.navigate',url="https://arxiv.org/search/?query="+keyword+"&searchtype=all&source=header&order=-announced_date_first&size=100&abstracts=show&start="+start, _timeout=20)
 
         # wait for loading
         self.tab.wait(2)
@@ -64,22 +66,21 @@ class crawler():
         #print(html)
         soup = BeautifulSoup(((html['result'])['value']),"html.parser")
 
-
-
         for link in soup.find_all("p"):
 #            print(link)
 #            print(type(str(link)))   
             if str(link).find("title is-5 mathjax") > 0 :
-                print(link) 
+#                print(link) 
                 a=str(link).find('''<p class="title is-5 mathjax">''')
                 b=str(link).find("</p>")
                 title=str(link)[a+46:b-4]
                 list.append(title)
 
-        for i in list:
-            print(i)
+#        for i in list:
+#            print(i)
 
         number_pdf=0
+        control_1=0
 
         for link in soup.find_all("a"):
 #            print(link)
@@ -92,25 +93,54 @@ class crawler():
                 addr=str(link)[a+6:b-5]
                 a=str(link).find("pdf")
                 pdf_name=str(link)[a+4:a+14]
-                print(pdf_name)
+#                print(pdf_name)
                 number_pdf=number_pdf+1
                 D1={}
                 D1["serial_num"]=pdf_name
                 D1["addr"]=addr	
-                print(D1)
+ #               print(D1)
                 list2.append(D1)
 
+                cmd=CLICK_A_NUM % control_1
+                print(cmd)
+                self.tab.Runtime.evaluate(expression=cmd)
 
-#        print("how mamy =")
-#        print(number_pdf)
-#        print(len(list2))
-#        print(len(list))
+              # wait for loading
+                self.tab.wait(20)
 
+                html = self.tab.Runtime.evaluate(expression="document.documentElement.outerHTML")
+
+                #print(html)
+
+                soup = BeautifulSoup(((html['result'])['value']),"html.parser")
+
+                control_2=0
+                control_3=0
+                for link in soup.find_all("a"):
+#                    print(link)
+                    if str(link).find("here") > 0 :
+                        print(link)
+#                        print(type(str(link)))
+                        control_3=control_2			                    
+                        break
+                    control_2=control_2+1
+
+                print("control1 and control_3 ")
+                print(control_1)
+                print(control_3)
+                t=RMPDownload("C:\\Users\\shijonn\\Desktop\\cop\\automation"+"\\")
+                t.download_by_quip("https://arxiv.org/search/?query="+keyword+"&searchtype=all&source=header&order=-announced_date_first&size=100&abstracts=show&start="+start,pdf_name+".pdf",control_1,control_3)
+
+            control_1=control_1+1
+
+        if(not(len(list2)==len(list))):
+            print("something bad happened ")
+            exit()                      
 
         for i in list2:
             i["title"]=list.pop(0)  
             print(i['serial_num'],i['addr'],i["title"])   
-            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,None,None)
+            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,time.asctime( time.localtime(time.time()) ),None)
                 
 
     def excel(self,path,name,output,name2,serial_num,titile,addr,existence,date,position):
@@ -172,7 +202,8 @@ class crawler():
 
 if __name__ == "__main__" :
     c=crawler() 
-    c.call_web()
+    c.call_web("Autonomous+Vehicle","0")
+#    c.call_web("Autonomous+Vehicle","100")
 #    c.excel("./files/","./files/","test","test","test","test","test","test","test")
 
 
