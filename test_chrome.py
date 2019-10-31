@@ -146,13 +146,7 @@ class crawler():
         for file in fileList:
             print("file name=",file)
             if os.path.isdir("../"+file):
-                fileList2=os.listdir("../"+file)
-                if file=="automation":
-                    if file2==(file_name+".pdf"):
-                        list3.append(None)
-                        exist=True
-                    continue    
- 
+                fileList2=os.listdir("../"+file)  
                 for file2 in fileList2:        
                     print("file name=",file2)                                 
                     if file2==(file_name+".pdf"):
