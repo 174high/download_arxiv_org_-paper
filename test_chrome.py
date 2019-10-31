@@ -69,21 +69,15 @@ class crawler():
 #            print(link)
 #            print(type(str(link)))   
             if str(link).find("title is-5 mathjax") > 0 :
-#                print(link) 
                 a=str(link).find('''<p class="title is-5 mathjax">''')
                 b=str(link).find("</p>")
                 title=str(link)[a+46:b-4]
                 list.append(title)
 
-#        for i in list:
-#            print(i)
-
         number_pdf=0
         control_1=0
 
-        for link in soup.find_all("a"):
-#            print(link)
-#           print(type(str(link)))   
+        for link in soup.find_all("a"):  
             if str(link).find("pdf") > 0 :
                 print(link)
                 #print(type(str(link)))
@@ -100,10 +94,9 @@ class crawler():
  #               print(D1)
                 list2.append(D1)
 
-                if(self.if_existence(pdf_name)):
+                if(self.if_existence(pdf_name,list3)):
                    control_1=control_1+1
                    list3.append(None)
-                   break
                    continue 
 
                 cmd=CLICK_A_NUM % control_1
@@ -122,10 +115,7 @@ class crawler():
                 control_2=0
                 control_3=0
                 for link in soup.find_all("a"):
-#                    print(link)
                     if str(link).find("here") > 0 :
-                        print(link)
-#                        print(type(str(link)))
                         control_3=control_2			                    
                         break
                     control_2=control_2+1
@@ -136,52 +126,39 @@ class crawler():
                 t=RMPDownload("C:\\Users\\shijonn\\Desktop\\cop\\automation"+"\\")
                 t.download_by_quip("https://arxiv.org/search/?query="+keyword+"&searchtype=all&source=header&order=-announced_date_first&size="+size+"&abstracts=show&start="+start,pdf_name+".pdf",control_1,control_3)
 
-
-                fileList=os.listdir("../")
-                for file in fileList:
-                    print("file name=",file)
-                    if os.path.isdir("../"+file):
-                        fileList2=os.listdir("../"+file)
-                        if file=="automation":
-                            if file2==(pdf_name+".pdf"):
-                                list3.append(None)
-                            continue    
- 
-                        for file2 in fileList2:        
-                            print("file name=",file2)                                 
-                            if file2==(pdf_name+".pdf"):
-                                list3.append(file)
-                                print(file) 
-                                print(type(file)) 
-                                print(len(list3))
-                                print("there already is the file")
-                                os.remove("./"+pdf_name+".pdf")
-
             control_1=control_1+1
 
-#        if(not((len(list2)==len(list))and(len(list3)==len(list)))):
-#            print("something bad happened ")
-#            exit()                      
+        if(not((len(list2)==len(list))and(len(list3)==len(list)))):
+            print("something bad happened ")
+            exit()                      
 
         for i in list2:
             i["title"]=list.pop(0)  
             i["position"]=list3.pop(0)
             print(i['serial_num'],i['addr'],i["title"],i["position"])   
-            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,time.asctime( time.localtime(time.time()) ),i["position"])               
+            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,time.asctime( time.localtime(time.time()) ),i["position"])       
+        
 
-    def if_existence(self,file_name): 
+    def if_existence(self,file_name,list3): 
 
         exist=False
         fileList=os.listdir("../")
         for file in fileList:
+            print("file name=",file)
             if os.path.isdir("../"+file):
-                fileList2=os.listdir("../"+file)  
+                fileList2=os.listdir("../"+file)
+                if file=="automation":
+                    if file2==(file_name+".pdf"):
+                        list3.append(None)
+                        exist=True
+                    continue    
+ 
                 for file2 in fileList2:        
                     print("file name=",file2)                                 
-                    if file2==(file_name+".pdf"):                          
+                    if file2==(file_name+".pdf"):
                         exist=True
-                        print("there already is the file")
-   
+                        list3.append(file)
+
         return  exist
 
     def excel(self,path,name,output,name2,serial_num,titile,addr,existence,date,position):
@@ -211,6 +188,7 @@ class crawler():
                     if(sheet.cell(row=file_num, column=1).value==serial_num):
                         print("is true!")
                         self.record(sheet,file_num,serial_num,titile,addr,existence,date,position)
+                        exist=True
                         break
                     file_num=file_num+1 
 
@@ -250,7 +228,7 @@ class crawler():
 if __name__ == "__main__" :
     c=crawler() 
     c.call_web("Autonomous+Vehicle","0","50")
-#    c.call_web("Autonomous+Vehicle","100")
+#    c.call_web("Autonomous+Vehicle","100","50")
 #    c.excel("./files/","./files/","test","test","test","test","test","test","test")
 
 
