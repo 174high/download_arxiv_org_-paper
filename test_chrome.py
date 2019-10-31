@@ -100,6 +100,12 @@ class crawler():
  #               print(D1)
                 list2.append(D1)
 
+                if(self.if_existence(pdf_name)):
+                   control_1=control_1+1
+                   list3.append(None)
+                   break
+                   continue 
+
                 cmd=CLICK_A_NUM % control_1
                 print(cmd)
                 self.tab.Runtime.evaluate(expression=cmd)
@@ -135,10 +141,12 @@ class crawler():
                 for file in fileList:
                     print("file name=",file)
                     if os.path.isdir("../"+file):
-                        if file=="automation":
-                            list3.append(None)
-                            continue    
                         fileList2=os.listdir("../"+file)
+                        if file=="automation":
+                            if file2==(pdf_name+".pdf"):
+                                list3.append(None)
+                            continue    
+ 
                         for file2 in fileList2:        
                             print("file name=",file2)                                 
                             if file2==(pdf_name+".pdf"):
@@ -151,17 +159,30 @@ class crawler():
 
             control_1=control_1+1
 
-        if(not((len(list2)==len(list))&&(len(list3)==len(list)))):
-            print("something bad happened ")
-            exit()                      
+#        if(not((len(list2)==len(list))and(len(list3)==len(list)))):
+#            print("something bad happened ")
+#            exit()                      
 
         for i in list2:
             i["title"]=list.pop(0)  
             i["position"]=list3.pop(0)
             print(i['serial_num'],i['addr'],i["title"],i["position"])   
-            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,time.asctime( time.localtime(time.time()) ),i["position"])
-                
-        
+            self.excel("./tamplate/","arxiv.xlsx","./files/","arxiv-total.xlsx",i['serial_num'],i["title"],i['addr'],None,time.asctime( time.localtime(time.time()) ),i["position"])               
+
+    def if_existence(self,file_name): 
+
+        exist=False
+        fileList=os.listdir("../")
+        for file in fileList:
+            if os.path.isdir("../"+file):
+                fileList2=os.listdir("../"+file)  
+                for file2 in fileList2:        
+                    print("file name=",file2)                                 
+                    if file2==(file_name+".pdf"):                          
+                        exist=True
+                        print("there already is the file")
+   
+        return  exist
 
     def excel(self,path,name,output,name2,serial_num,titile,addr,existence,date,position):
     
@@ -189,38 +210,15 @@ class crawler():
                 while(file_num<=sheet.max_row):
                     if(sheet.cell(row=file_num, column=1).value==serial_num):
                         print("is true!")
-                        if(serial_num!=None):
-                            sheet.cell(row=file_num, column=1,value=serial_num)
-                        if(titile!=None):
-                            sheet.cell(row=file_num, column=2,value=titile)
-                        if(addr!=None):
-                            sheet.cell(row=file_num, column=3,value=addr)
-                        if(existence!=None):
-                            sheet.cell(row=file_num, column=4,value=existence)
-                        if(date!=None):
-                            sheet.cell(row=file_num, column=5,value=date)
-                        if(position!=None):
-                            sheet.cell(row=file_num, column=6,value=position)
-                        exist=True
+                        self.record(sheet,file_num,serial_num,titile,addr,existence,date,position)
                         break
                     file_num=file_num+1 
 
                 next_row=sheet.max_row+1
 
                 if(exist==False):
-                    if(serial_num!=None):
-                        sheet.cell(row=next_row, column=1,value=serial_num)
-                    if(titile!=None):
-                        sheet.cell(row=next_row, column=2,value=titile)
-                    if(addr!=None):
-                        sheet.cell(row=next_row, column=3,value=addr)
-                    if(existence!=None):
-                        sheet.cell(row=next_row, column=4,value=existence)
-                    if(date!=None):
-                        sheet.cell(row=next_row, column=5,value=date)
-                    if(position!=None):
-                        sheet.cell(row=next_row, column=6,value=position)
-
+                    self.record(sheet,next_row,serial_num,titile,addr,existence,date,position)
+ 
                 wb.save(output+"tmp.xlsx")
                                 
         shutil.copy(output+"tmp.xlsx",output+name2)             
@@ -230,6 +228,23 @@ class crawler():
             os.remove(output+name) 
         except FileNotFoundError: 
             print("ignore it ")
+
+
+    def record(self,sheet,file_num,serial_num,titile,addr,existence,date,position):
+
+        if(serial_num!=None):
+            sheet.cell(row=file_num, column=1,value=serial_num)
+        if(titile!=None):
+            sheet.cell(row=file_num, column=2,value=titile)
+        if(addr!=None):
+            sheet.cell(row=file_num, column=3,value=addr)
+        if(existence!=None):
+            sheet.cell(row=file_num, column=4,value=existence)
+        if(date!=None):
+            sheet.cell(row=file_num, column=5,value=date)
+        if(position!=None):
+             sheet.cell(row=file_num, column=6,value=position)
+
 
 
 if __name__ == "__main__" :
